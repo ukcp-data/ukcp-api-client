@@ -57,7 +57,7 @@ The UKCP request workflow is complicated. The following diagram explains the wor
 
 It is useful to study this diagram so that you understand how the API interacts with the remote service.
 
-![alt text](https://github.com/agstephens/ukcp-api-client/raw/master/doc/images/api_flowchart.png "API Flowchart")
+![alt text](https://github.com/ukcp-data/ukcp-api-client/raw/master/doc/images/api_flowchart.png "API Flowchart")
 
 ## Platform support and dependencies
 
