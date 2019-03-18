@@ -15,7 +15,7 @@ Install the library with:
 
 ```
 $ git clone https://github.com/ukcp-data/ukcp-api-client
-$ cd ukcp-api-client
+$ cd ukcp-api-client/
 ```
 
 Install dependencies:
@@ -28,6 +28,14 @@ Set the `API_KEY` environment variable (on Linux/Mac):
 
 ```
 $ export API_KEY="hGIG234234g7sNOHWLof982LOSHL34g7"
+```
+
+**NOTE: Your API Key is provided on your dashboard page: https://ukclimateprojections-ui.metoffice.gov.uk/user**
+
+Make sure your `PYTHONPATH` is picking up the current directory:
+
+```
+$ export PYTHONPATH=.:$PYTHONPATH
 ```
 
 Run the simple test:
