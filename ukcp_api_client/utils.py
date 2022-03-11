@@ -60,7 +60,7 @@ def get_status_url(xml):
     if not status_url:
         # Attempt to get error message
         try: 
-            message = root.iter(OWS_ERROR_NS + 'ExceptionText').next().text
+            message = next(root.iter(OWS_ERROR_NS + 'ExceptionText')).text
         except Exception:
             message = ('Could not get status URL from response.')
 
@@ -83,7 +83,7 @@ def get_status_and_message(xml):
 
     # Failed status requires extra work to get message
     if status == FAILED_STATUS:
-        message = qual_status.iter(OWS_NS + 'ExceptionText').next().text
+        message = next(qual_status.iter(OWS_NS + 'ExceptionText')).text
     else:
         message = qual_status.text
 
@@ -160,10 +160,4 @@ def save_url_to_local_file(url, filepath):
     # Open local file for writing
     with open(filepath, "wb") as local_file:
         shutil.copyfileobj(response.raw, local_file)
-
-
-
-
-
-
 

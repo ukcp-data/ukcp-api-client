@@ -1,5 +1,5 @@
 import os
-import urllib2
+import requests
 import time
 import xml.etree.ElementTree as ET
 
@@ -14,7 +14,7 @@ if not API_KEY:
 
 BASE_URL = 'https://ukclimateprojections-ui.metoffice.gov.uk'
 
-URL_TEMPLATE = ('{base_url}/wps/Execute?'
+URL_TEMPLATE = ('{base_url}/wps?'
     'Request=Execute&Identifier={proc_id}&Format=text/xml&Inform=true&Store=false&'
     'Status=false&DataInputs={data_inputs}&ApiKey={api_key}')
 
@@ -47,14 +47,14 @@ def _call_api(proc_id, expect_error_code=-999, **kwargs):
     print('Calling: {}'.format(url))
 
     try:
-        response = urllib2.urlopen(url)
+        response = requests.get(url)
     except Exception as err:
         if err.code == expect_error_code:
             return err
 
         raise Exception('Failed with unexpected error: {}\nURL: {}'.format(err, url))
 
-    xml_doc = response.read()
+    xml_doc = response.text
     return url, xml_doc
 
 
@@ -96,8 +96,8 @@ def _poll_status_url(status_url):
 
     while 1:
         time.sleep(5)
-        response = urllib2.urlopen(status_url)
-        xml_doc = response.read()
+        response = requests.get(status_url)
+        xml_doc = response.text
 
         if _check_status(xml_doc):
             return xml_doc
@@ -117,8 +117,8 @@ def _download_output(url):
     # Append API Key
     url += '?ApiKey={}'.format(API_KEY)
 
-    response = urllib2.urlopen(url)
-    output = response.read()
+    response = requests.get(url)
+    output = response.text
         
 
 def test_single_call():
@@ -151,7 +151,7 @@ def test_5_calls():
 def test_fail_when_running():
     cli = UKCPApiClient(outputs_dir='my-outputs', api_key=API_KEY)
 
-    request_url = 'https://ukclimateprojections-ui.metoffice.gov.uk/wps/Execute?' \
+    request_url = 'https://ukclimateprojections-ui.metoffice.gov.uk/wps?' \
                   'Request=Execute&Identifier=LS3_Subset_01&Format=text/xml&Inform=true&Store=false&' \
                   'Status=false&DataInputs=TemporalAverage=jan;Area=bbox|474459.24|246518.35|' \
                   '474459.24|246518.35;Collection=land-rcm;ClimateChangeType=absolute;' \
@@ -161,16 +161,18 @@ def test_fail_when_running():
         cli.submit(request_url)
     except Exception as err:
         last_line = str(err).split('\n')[-1].strip()
-        assert(last_line == 'The process failed with error message: "IndexError= too many indices for array"')
+        assert(last_line == 'The process failed with error message: "UnboundLocalError= ' \
+                            'local variable \'time_index\' referenced before assignment"')
+#The process failed with error message: "IndexError= too many indices for array"')
 
 
 def test_fail_on_submit():
     cli = UKCPApiClient(outputs_dir='my-outputs', api_key=API_KEY)
 
-    request_url = 'https://ukclimateprojections-ui.metoffice.gov.uk/wps/Execute?' \
+    request_url = 'https://ukclimateprojections-ui.metoffice.gov.uk/wps?' \
                   'Request=Execute&Identifier=Rubbish&Format=text/xml&Inform=true&Store=false'
 
     try:
         cli.submit(request_url)
     except Exception as err:
-        assert(str(err) == 'Request failed: InvalidParameterValue: Identifier not found (None)')
+        assert(str(err) == 'Request failed: InvalidParameterValue: Identifier not found. (None)')
